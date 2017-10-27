@@ -4,6 +4,8 @@
 \alias{PPC-intervals}
 \alias{ppc_intervals}
 \alias{ppc_intervals_grouped}
+\alias{ppc_intervals_2}
+\alias{ppc_intervals_grouped_2}
 \alias{ppc_ribbon}
 \alias{ppc_ribbon_grouped}
 \alias{ppc_intervals_data}
@@ -13,6 +15,12 @@
 ppc_intervals(y, yrep, x = NULL, ..., prob = 0.9, size = 1, fatten = 3)
 
 ppc_intervals_grouped(y, yrep, x = NULL, group, facet_args = list(), ...,
+  prob = 0.9, size = 1, fatten = 3)
+
+ppc_intervals_2(y, yrep, x = NULL, ..., prob = 0.9, size = 1,
+  fatten = 3)
+
+ppc_intervals_grouped_2(y, yrep, x = NULL, group, facet_args = list(), ...,
   prob = 0.9, size = 1, fatten = 3)
 
 ppc_ribbon(y, yrep, x = NULL, ..., prob = 0.9, alpha = 0.33,
@@ -57,6 +65,13 @@ passed to \code{\link[ggplot2]{facet_wrap}} to control faceting.}
 \code{alpha} and \code{size} are passed to
 \code{\link[ggplot2]{geom_ribbon}}. For interval plots \code{size} and
 \code{fatten} are passed to \code{\link[ggplot2]{geom_pointrange}}.}
+
+\item{group}{A grouping variable (a vector or factor) the same length as
+\code{y}. Each value in \code{group} is interpreted as the group level
+pertaining to the corresponding value of \code{y}.}
+
+\item{facet_args}{An optional list of  arguments (other than \code{facets})
+passed to \code{\link[ggplot2]{facet_wrap}} to control faceting.}
 }
 \value{
 A ggplot object that can be further customized using the

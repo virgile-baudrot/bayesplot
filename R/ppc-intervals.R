@@ -132,6 +132,7 @@ ppc_intervals <- function(y,
   )
 }
 
+
 #' @rdname PPC-intervals
 #' @export
 #' @template args-group
@@ -171,6 +172,84 @@ ppc_intervals_grouped <- function(y,
     x_lab = label_x(x)
   )
 }
+
+# ------------------------- start modifs
+
+#' @rdname PPC-intervals
+#' @export
+ppc_intervals_2 <- function(y,
+                            yrep,
+                            x = NULL,
+                            ...,
+                            prob = 0.9,
+                            size = 1,
+                            fatten = 3) {
+  check_ignored_arguments(...)
+
+  x_text <- ifelse(is.null(x), FALSE, TRUE)
+
+  data <- ppc_intervals_data(
+    y = y,
+    yrep = yrep,
+    x = x,
+    group = NULL,
+    prob = prob
+  )
+
+  .ppc_intervals(
+    data = data,
+    size = size,
+    fatten = fatten,
+    grouped = FALSE,
+    style = "intervals_2",
+    x_lab = label_x(x),
+    x_text = x_text
+  )
+}
+
+#' @rdname PPC-intervals
+#' @export
+#' @template args-group
+#' @param facet_args An optional list of  arguments (other than \code{facets})
+#'   passed to \code{\link[ggplot2]{facet_wrap}} to control faceting.
+#'
+ppc_intervals_grouped_2 <- function(y,
+                                  yrep,
+                                  x = NULL,
+                                  group,
+                                  facet_args = list(),
+                                  ...,
+                                  prob = 0.9,
+                                  size = 1,
+                                  fatten = 3) {
+  check_ignored_arguments(...)
+
+  if (is.null(facet_args[["scales"]])) {
+    facet_args[["scales"]] <- "free"
+  }
+
+  x_text <- ifelse(is.null(x), FALSE, TRUE)
+
+  data <- ppc_intervals_data(
+    y = y,
+    yrep = yrep,
+    x = x,
+    group = group,
+    prob = prob
+  )
+
+  .ppc_intervals(
+    data = data,
+    facet_args = facet_args,
+    size = size,
+    fatten = fatten,
+    grouped = TRUE,
+    style = "intervals_2",
+    x_lab = label_x(x),
+    x_text = x_text
+  )
+}
+# ----------------------- end modifs
 
 
 #' @rdname PPC-intervals
@@ -253,8 +332,6 @@ ppc_intervals_data <- function(y, yrep, x = NULL, group = NULL, prob = 0.9, ...)
 ppc_ribbon_data <- ppc_intervals_data
 
 
-
-
 # internal ----------------------------------------------------------------
 label_x <- function(x) {
   if (missing(x)) "Index" else NULL
@@ -314,8 +391,10 @@ label_x <- function(x) {
            fatten = 3,
            size = 1,
            grouped = FALSE,
-           style = c("intervals", "ribbon"),
-           x_lab = NULL) {
+           style = c("intervals", "ribbon", "intervals_2"),
+           x_lab = NULL,
+           y_lab = NULL,
+           x_text = FALSE) {
 
   style <- match.arg(style)
 
@@ -330,6 +409,7 @@ label_x <- function(x) {
   )
 
   if (style == "ribbon") {
+
     graph <- graph +
       geom_ribbon(
         aes_(color = "yrep", fill = "yrep"),
@@ -345,7 +425,35 @@ label_x <- function(x) {
         aes_(y = ~ y_obs, color = "y"),
         size = 0.5
       )
+  } else if(style == "intervals_2"){
+
+    x_lab <- y_label()
+    y_lab <- yrep_label()
+
+    graph <- ggplot(
+      data = data,
+      mapping = aes_(
+        y = ~ mid,
+        ymin = ~ lo,
+        ymax = ~ hi
+      )
+    )
+
+    graph <- graph +
+      geom_pointrange(
+        mapping = aes_(x = ~ y_obs, color = "yrep", fill = "yrep"),
+        shape = 21,
+        size = size,
+        fatten = fatten
+      ) +
+      geom_abline( color = get_color("dh"))
+
+      if(x_text == TRUE){
+        graph <- graph +
+          geom_text(mapping =  aes_(x = ~ y_obs, label= ~ x), hjust=0, vjust=0, size=3)
+      }
   } else {
+
     graph <- graph +
       geom_pointrange(
         mapping = aes_(color = "yrep", fill = "yrep"),
@@ -383,6 +491,6 @@ label_x <- function(x) {
   }
 
   graph +
-    labs(y = NULL, x = x_lab %||% expression(italic(x)))
+    labs(y = NULL , x = x_lab %||% expression(italic(x)))
 }
 
